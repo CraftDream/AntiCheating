@@ -1,0 +1,5 @@
+name: AntiCheating
+version: ${project.version}
+main: me.lei_s_ha.anticheating.AntiCheating
+authors: [lei_s_ha]
+description: Cheating GO DIE.
