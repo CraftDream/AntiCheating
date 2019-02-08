@@ -12,17 +12,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.player.PlayerBedEnterEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 
 
 public final class AntiCheating extends JavaPlugin implements Listener {
-    String qz = "§c[§eAntiCheating§c]§b >> §r";
+    String qz = "§eAntiCheating§b >> §r";
     public static List<String> AntiCheatModCode = Arrays.asList(new String[] {
             // CJB Xray 防御CJB透视
             "&3 &9 &2 &0 &0 &2 ",
@@ -178,7 +175,7 @@ public final class AntiCheating extends JavaPlugin implements Listener {
                 public void run() {
                     AsyncSendTask();
                 }
-            }, 0L);
+            }, 20L);
         }
     }
 
@@ -199,7 +196,6 @@ public final class AntiCheating extends JavaPlugin implements Listener {
         }
     }
 
-    /*
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)  //附魔效率卡方块
     public void onBlockDamage(BlockDamageEvent event){
         if (event.getPlayer().isOnGround()) {
@@ -209,9 +205,8 @@ public final class AntiCheating extends JavaPlugin implements Listener {
             return;
         }
         Block block = event.getBlock();
-        event.getPlayer().sendBlockChange(block.getLocation(), block.getBlockData());
+        event.getPlayer().sendBlockChange(block.getLocation(), block.getType(), block.getData());
     }
-    */
 
     @EventHandler
     public void onEntityPickup(EntityPickupItemEvent e){  //判断是否玩家捡起掉落物
@@ -221,21 +216,19 @@ public final class AntiCheating extends JavaPlugin implements Listener {
         e.setCancelled(true);
     }
 
-    /*
     @EventHandler
     public void onJump(PlayerInteractEvent event){  //防止玩家踩田
-        if ((event.getAction() == Action.PHYSICAL) && (event.getClickedBlock().getType() == Material.FARMLAND)) {
+        if ((event.getAction() == Action.PHYSICAL) && (event.getClickedBlock().getType() == Material.SOIL)) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onModJumpty(EntityInteractEvent event){  //防止实体踩田
-        if ((event.getEntityType() != EntityType.PLAYER) && (event.getBlock().getType() == Material.FARMLAND)) {
+        if ((event.getEntityType() != EntityType.PLAYER) && (event.getBlock().getType() == Material.SOIL)) {
             event.setCancelled(true);
         }
     }
-    */
 
     @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)  //防止实体破坏方块
     public void onEntityBlockChangeEvent(EntityChangeBlockEvent e) {
@@ -268,61 +261,8 @@ public final class AntiCheating extends JavaPlugin implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.LOW)
-    public void onFromTo(final BlockFromToEvent event) {  //液体流动龙蛋传送事件
-        final Material id = event.getBlock().getType();
-        if (id == Material.WATER || id == Material.WATER || id == Material.LAVA || id == Material.LAVA) {
-            final Block b = event.getToBlock();
-            final Material toid = b.getType();
-            if (toid == Material.AIR && this.generatesCobble(id, b)) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
-    public boolean generatesCobble(final Material id, final Block b) {
-        final Material mirrorID1 = (id == Material.WATER || id == Material.WATER) ? Material.LAVA : Material.WATER;
-        final Material mirrorID2 = (id == Material.WATER || id == Material.WATER) ? Material.LAVA : Material.WATER;
-        BlockFace[] arrayOfBlockFace;
-        for (int j = (arrayOfBlockFace = this.faces).length, i = 0; i < j; ++i) {
-            final BlockFace face = arrayOfBlockFace[i];
-            final Block r = b.getRelative(face, 1);
-            if (r.getType() == mirrorID1 || r.getType() == mirrorID2) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private final BlockFace[] faces = new BlockFace[] { BlockFace.SELF, BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST };
-
     @EventHandler
-    public void test(BlockPistonExtendEvent e) {  //活塞缩回事件
-        for (final Block b : e.getBlocks()) {
-            final int x = b.getX();
-            int y = b.getY();
-            final int z = b.getZ();
-            int fallingblocks = 0;
-            ++y;
-            while (new Location(b.getWorld(), x, y, z).getBlock().getType().isSolid()) {
-                if (this.isFallingBlock(new Location(b.getWorld(), x, y, z).getBlock().getType())) {
-                    ++fallingblocks;
-                }
-                if (fallingblocks > 20) {
-                    e.setCancelled(true);
-                    break;
-                }
-                ++y;
-            }
-        }
-    }
-
-    public boolean isFallingBlock(Material mat) {
-        return mat.equals(Material.SAND) || mat.equals(Material.GRAVEL) || mat.equals(Material.ANVIL);
-    }
-
-    @EventHandler
-    public void lightningEntity(final EntityDamageByEntityEvent e) {  //实体受到攻击事件
+    public void lightningEntity(final EntityDamageByEntityEvent e) {  //防止地上的掉落物被炸没
         if (e.getCause() == EntityDamageEvent.DamageCause.LIGHTNING) {
             if(e.getEntity() instanceof Item) {
                 e.setCancelled(true);
