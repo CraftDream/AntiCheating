@@ -15,6 +15,10 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+
+import java.net.URL;
 import java.util.*;
 
 
@@ -68,7 +72,7 @@ public final class AntiCheating extends JavaPlugin implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void CheckDropNoBugInfItem(PlayerDropItemEvent e) {//影分身BUG
+    public void CheckDropNoBugInfItem(PlayerDropItemEvent e) {  //影分身BUG
         if (e.getPlayer() == null || e.getPlayer().isOnline() == false || e.getPlayer().isValid() == false) {
             e.setCancelled(true);
         }
@@ -194,6 +198,26 @@ public final class AntiCheating extends JavaPlugin implements Listener {
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', code));
             }
         }
+    }
+
+    @EventHandler
+    public void onLogin(PlayerLoginEvent e) {  //判断代理ip防压测
+        if (isProxy(e.getAddress().getHostAddress())) {
+            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, qz + "§cWATCH NMSL");
+        }
+    }
+
+    public boolean isProxy(String address) {  //判断代理ip
+        try {
+            if(address.equals("127.0.0.1")) return false;
+            String json = new String(IOUtils.toByteArray(new URL("http://proxycheck.io/v2/" + address + "?&vpn=1&asn=1&node=1&inf=0&port=1&seen=1&days=7&tag=msg").openStream()));
+            JSONObject obj = new JSONObject(json);
+            if (obj.getJSONObject(address).get("proxy").equals("yes")) {
+                return true;
+            }
+        }
+        catch (Exception ex) {}
+        return false;
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)  //附魔效率卡方块
