@@ -20,7 +20,7 @@ import java.util.*;
 
 public final class AntiCheating extends JavaPlugin implements Listener {
     private String qz = "§eAntiCheating§b >> §r";
-    private static List<String> AntiCheatModCode = Arrays.asList( //反作弊代码
+    private static List<String> AntiCheatModCode = Arrays.asList( //反作弊代码列表
             "&3 &9 &2 &0 &0 &2 ",
             // CJB Fly 防御CJB作弊飞行
             "&3 &9 &2 &0 &0 &1 ",
