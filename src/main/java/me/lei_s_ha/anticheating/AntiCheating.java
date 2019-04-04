@@ -1,5 +1,6 @@
 package me.lei_s_ha.anticheating;
 
+import com.google.common.base.Strings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,17 +16,11 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
-
-import java.net.URL;
 import java.util.*;
 
-
 public final class AntiCheating extends JavaPlugin implements Listener {
-    String qz = "§eAntiCheating§b >> §r";
-    public static List<String> AntiCheatModCode = Arrays.asList(new String[] {
-            // CJB Xray 防御CJB透视
+    private String qz = "§eAntiCheating§b >> §r";
+    private static List<String> AntiCheatModCode = Arrays.asList(// CJB Xray 防御CJB透视
             "&3 &9 &2 &0 &0 &2 ",
             // CJB Fly 防御CJB作弊飞行
             "&3 &9 &2 &0 &0 &1 ",
@@ -56,13 +51,11 @@ public final class AntiCheating extends JavaPlugin implements Listener {
             // 该模组可以盗取服务器里的任何建筑
             "&0&2&0&0&e&f",
             "&0&2&1&0&e&f",
-            "&0&2&1&1&e&f"});
+            "&0&2&1&1&e&f");
     private String username = null;
-    public static List<String> address = new ArrayList();
-    public static Boolean motdCheck;
-    static HashMap<Player, Float> yawMap = new HashMap<Player, Float>();
-    static HashMap<Player, Float> ptichMap  = new HashMap<Player, Float>();
-    public static HashMap<Player, Integer> valueMap = new HashMap<Player, Integer>();
+    private static HashMap<Player, Float> yawMap = new HashMap<>();
+    private static HashMap<Player, Float> ptichMap  = new HashMap<>();
+    private static HashMap<Player, Integer> valueMap = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -73,7 +66,7 @@ public final class AntiCheating extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void CheckDropNoBugInfItem(PlayerDropItemEvent e) {  //影分身BUG
-        if (e.getPlayer() == null || e.getPlayer().isOnline() == false || e.getPlayer().isValid() == false) {
+        if (e.getPlayer() == null || !e.getPlayer().isOnline() || !e.getPlayer().isValid()) {
             e.setCancelled(true);
         }
     }
@@ -102,7 +95,7 @@ public final class AntiCheating extends JavaPlugin implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        Boolean boo = false;
+        boolean boo = false;
         Location loc = player.getLocation().clone();
         float yaw = loc.getYaw();
         float pitch = loc.getPitch();
@@ -183,8 +176,8 @@ public final class AntiCheating extends JavaPlugin implements Listener {
         }
     }
 
-    public void AsyncSendTask() {  //判断作弊
-        if (this.username == "" || this.username == null) {
+    private void AsyncSendTask() {  //判断作弊
+        if (Strings.isNullOrEmpty(this.username)) {
             return;
         }
         String name = this.username;
@@ -198,26 +191,6 @@ public final class AntiCheating extends JavaPlugin implements Listener {
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', code));
             }
         }
-    }
-
-    @EventHandler
-    public void onLogin(PlayerLoginEvent e) {  //判断代理ip防压测
-        if (isProxy(e.getAddress().getHostAddress())) {
-            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, qz + "§cWATCH NMSL");
-        }
-    }
-
-    public boolean isProxy(String address) {  //判断代理ip
-        try {
-            if(address.equals("127.0.0.1")) return false;
-            String json = new String(IOUtils.toByteArray(new URL("http://proxycheck.io/v2/" + address + "?&vpn=1&asn=1&node=1&inf=0&port=1&seen=1&days=7&tag=msg").openStream()));
-            JSONObject obj = new JSONObject(json);
-            if (obj.getJSONObject(address).get("proxy").equals("yes")) {
-                return true;
-            }
-        }
-        catch (Exception ex) {}
-        return false;
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)  //附魔效率卡方块
@@ -280,8 +253,8 @@ public final class AntiCheating extends JavaPlugin implements Listener {
 
     @EventHandler
     public void eggThrow(PlayerBedEnterEvent event) {  //禁止睡觉
-            event.setCancelled(true);
-            event.getPlayer().sendMessage(qz + "§6服务器禁止睡觉!");
+        event.setCancelled(true);
+        event.getPlayer().sendMessage(qz + "§6服务器禁止睡觉!");
 
     }
 
