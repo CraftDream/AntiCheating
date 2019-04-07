@@ -1,10 +1,7 @@
 package me.lei_s_ha.anticheating;
 
 import com.google.common.base.Strings;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
@@ -143,14 +140,14 @@ public final class AntiCheating extends JavaPlugin implements Listener {
                 }
             }
         }
-        if(e.getDamager().getWorld().getName().equals("spawn")) {
+        if(e.getDamager().getWorld().getName().equals("world")) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onLeavesDecay(LeavesDecayEvent e){  //树叶腐烂
-        if(e.getBlock().getWorld().getName().equals("spawn")) {
+        if(e.getBlock().getWorld().getName().equals("world")) {
             e.setCancelled(true);
         }
     }
@@ -265,6 +262,59 @@ public final class AntiCheating extends JavaPlugin implements Listener {
                 e.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerJoinfk(PlayerJoinEvent cp) {  //防卡地狱门
+        Player jpl = cp.getPlayer();
+        String PlayerName = jpl.getDisplayName();
+        System.out.println(PlayerName + "joined the game, start to see his or her block.");
+        Location k = jpl.getLocation();
+        double x = k.getX();
+        double y = k.getY();
+        double z = k.getZ();
+        World w = k.getWorld();
+        Block block = w.getBlockAt(k);
+        if (block.getType().equals(Material.PORTAL)) {
+            System.out.println(PlayerName + "'s block is conform to portal start to judge.");
+        } else {
+            return;
+        }
+        int xx = (int)x;int yy = (int)y;int zz = (int)z;
+        System.out.println(xx + " " + yy + " " + zz);
+        for (;;)
+        {
+            Block b = w.getBlockAt(xx, yy, zz);
+            System.out.println(xx + " " + yy + " " + zz + b.getType());
+            if (b.getType().equals(Material.OBSIDIAN))
+            {
+                xx++;
+                break;
+            }
+            if ((!b.getType().equals(Material.PORTAL)) && (!b.getType().equals(Material.OBSIDIAN))) {
+                break;
+            }
+            if (yy >= 127)
+            {
+                System.out.println("强制退出循环");
+                return;
+            }
+            xx++;
+        }
+        Block setb = w.getBlockAt(xx, yy, zz);
+        Block jdb2 = w.getBlockAt(xx, yy + 1, zz);
+        Block jdb3 = w.getBlockAt(xx, yy - 1, zz);
+        if ((jdb3.getType().equals(Material.WATER)) || (jdb3.getType().equals(Material.LAVA)) || (jdb3.getType().equals(Material.AIR))) {
+            jdb3.setType(Material.DIRT);
+        }
+        if (!jdb2.getType().equals(Material.AIR))
+        {
+            jdb2.setType(Material.AIR);
+            setb.setType(Material.AIR);
+        }
+        Location toooo = new Location(w, xx + 0.5D, yy, zz + 0.5D);
+        jpl.teleport(toooo);
+        jpl.sendMessage(qz + "§6检测到被卡地狱门，系统已自动传送出地狱门!");
     }
 
     @Override
