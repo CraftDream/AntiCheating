@@ -265,56 +265,30 @@ public final class AntiCheating extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoinfk(PlayerJoinEvent cp) {  //防卡地狱门
-        Player jpl = cp.getPlayer();
-        String PlayerName = jpl.getDisplayName();
-        System.out.println(PlayerName + "joined the game, start to see his or her block.");
-        Location k = jpl.getLocation();
-        double x = k.getX();
-        double y = k.getY();
-        double z = k.getZ();
-        World w = k.getWorld();
-        Block block = w.getBlockAt(k);
-        if (block.getType().equals(Material.PORTAL)) {
-            System.out.println(PlayerName + "'s block is conform to portal start to judge.");
-        } else {
-            return;
-        }
-        int xx = (int)x;int yy = (int)y;int zz = (int)z;
-        System.out.println(xx + " " + yy + " " + zz);
-        for (;;)
+    public void onJoinfk(PlayerJoinEvent e)
+    {
+        Player p = e.getPlayer();
+        Location loc = p.getLocation();
+        World world = loc.getWorld();
+        double x = loc.getX();
+        double y = loc.getY();
+        double z = loc.getZ();
+        Location loc_top = new Location(world, x, y + 1.0D, z);
+        Location loc_bottom = new Location(world, x, y - 1.0D, z);
+        Location loc_xleft = new Location(world, x + 1.0D, y, z);
+        Location loc_xright = new Location(world, x - 1.0D, y, z);
+        Location loc_zleft = new Location(world, x, y, z + 1.0D);
+        Location loc_zright = new Location(world, x, y, z - 1.0D);
+        if ((loc_top.getBlock().getTypeId() == 90) ||
+                (loc_bottom.getBlock().getTypeId() == 90) ||
+                (loc_xleft.getBlock().getTypeId() == 90) ||
+                (loc_xright.getBlock().getTypeId() == 90) ||
+                (loc_zleft.getBlock().getTypeId() == 90) ||
+                (loc_zright.getBlock().getTypeId() == 90))
         {
-            Block b = w.getBlockAt(xx, yy, zz);
-            System.out.println(xx + " " + yy + " " + zz + b.getType());
-            if (b.getType().equals(Material.OBSIDIAN))
-            {
-                xx++;
-                break;
-            }
-            if ((!b.getType().equals(Material.PORTAL)) && (!b.getType().equals(Material.OBSIDIAN))) {
-                break;
-            }
-            if (yy >= 127)
-            {
-                System.out.println("强制退出循环");
-                return;
-            }
-            xx++;
+            getServer().dispatchCommand(getServer().getConsoleSender(),"spawn " + p.getName());
+            p.sendMessage(qz + "§6检测到玩家被卡地狱门，系统已自动传送至主城!");
         }
-        Block setb = w.getBlockAt(xx, yy, zz);
-        Block jdb2 = w.getBlockAt(xx, yy + 1, zz);
-        Block jdb3 = w.getBlockAt(xx, yy - 1, zz);
-        if ((jdb3.getType().equals(Material.WATER)) || (jdb3.getType().equals(Material.LAVA)) || (jdb3.getType().equals(Material.AIR))) {
-            jdb3.setType(Material.DIRT);
-        }
-        if (!jdb2.getType().equals(Material.AIR))
-        {
-            jdb2.setType(Material.AIR);
-            setb.setType(Material.AIR);
-        }
-        Location toooo = new Location(w, xx + 0.5D, yy, zz + 0.5D);
-        jpl.teleport(toooo);
-        jpl.sendMessage(qz + "§6检测到被卡地狱门，系统已自动传送出地狱门!");
     }
 
     @Override
