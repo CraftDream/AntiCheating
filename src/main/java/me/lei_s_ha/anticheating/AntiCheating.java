@@ -82,7 +82,9 @@ public final class AntiCheating extends JavaPlugin implements Listener {
     public void onFish(PlayerFishEvent e) {  //钓鱼机
         Entity b = e.getHook();
         if (b.getLocation().getBlock().getRelative(BlockFace.UP).getType() == Material.TRIPWIRE || b.getLocation().getBlock().getRelative(BlockFace.UP).getType().toString().contains("_PRESSURE_PLATE")) {
-            e.setCancelled(true);
+            if(e.getCaught() == null) return;
+            e.getCaught().remove();
+            e.setExpToDrop(0);
         }
     }
 
